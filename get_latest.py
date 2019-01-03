@@ -15,8 +15,8 @@ url_ref_list=[
     ('https://www.taptap.com/category/e24?page=2', u'游戏测试')
 ]
 
-c_chromedriver = "./driver/chromedriver_235.exe" #mac_245_chromedriver"
-
+c_chromedriver = "./driver/chromedriver_235.exe" # WIN
+# c_chromedriver = "./driver/mac_245_chromedriver" # MAC
 
 def start():
     driver = webdriver.Chrome(c_chromedriver)
@@ -87,7 +87,7 @@ class DataManager():
 
             e_detail = item.find_elements_by_tag_name('img')
             title  = e_detail[0].get_attribute('title') if e_detail != [] else ''
-            imgsrc = e_detail[0].get_attribute('src').strip()    if e_detail != [] else ''
+            imgsrc = e_detail[0].get_attribute('src').strip() if e_detail != [] else ''
 
             e_rating = item.find_elements_by_class_name('caption-label-rating')
             rating   = e_rating[0].text.strip() if e_rating != [] else ''
@@ -112,9 +112,6 @@ class DataManager():
             row_dict = dict(basic_dict.items() | detail_dict.items())
 
             if title not in set(self.df_history.title):
-                # row = pd.Series([title, href, imgsrc, gametype, rating, ref, date_str],
-                #           index=['title', 'url', 'img', 'type', 'rating','ref', 'update_date'])
-                # self.df_history=self.df_history.append(row, ignore_index=True) # append to history
                 self.df_history=self.df_history.append(row_dict, ignore_index=True) # append to history
                 df = df.append(row_dict, ignore_index=True) # add to new
         return df
@@ -124,16 +121,16 @@ class DataManager():
         driver.get(url)
         print("ing "+url)
 
-        star_selector = 'body > div.container.app-main-container > div > div > section.app-show-main.taptap-page-main > div.show-main-header > div.main-header-text > div.header-text-download > div.text-download-text > p > span'
-        factory_selector ='body > div.container.app-main-container > div > div > section.app-show-main.taptap-page-main > div.show-main-body.collapse.in.first > div.main-body-info > ul > li:nth-child(4) > a'
-        intro_xpath   = '//*[@id="description"]'
-        update_selector = 'body > div.container.app-main-container > div > div > section.app-show-main.taptap-page-main > div.show-main-body.collapse.in.first > div.main-body-info > ul > li:nth-child(3) > span.info-item-content'
+        star_selector    = 'body > div.container.app-main-container > div > div > section.app-show-main.taptap-page-main > div.show-main-header > div.main-header-text > div.header-text-download > div.text-download-text > p > span'
+        factory_selector = '//a[@itemprop="publisher"]'
+        intro_xpath      = '//*[@id="description"]'
+        update_selector  = '//span[@itemprop="datePublished"]'
 
 
         intro   = _get_firstText_or_empty(driver.find_elements_by_xpath(intro_xpath))
-        factory = _get_firstText_or_empty(driver.find_elements_by_css_selector(factory_selector))
+        factory = _get_firstText_or_empty(driver.find_elements_by_xpath(factory_selector))
         star    = _get_firstText_or_empty(driver.find_elements_by_class_name("count-stats"))
-        update  = _get_firstText_or_empty(driver.find_elements_by_css_selector(update_selector))
+        update  = _get_firstText_or_empty(driver.find_elements_by_xpath(update_selector))
 
         print(url, intro, star, update)
         return {'intro':intro, 'factory':factory, 'star':star, 'update': update}
